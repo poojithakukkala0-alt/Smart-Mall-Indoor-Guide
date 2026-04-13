@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Mall Guide</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-100 to-blue-100 min-h-screen font-sans">
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 text-center shadow-lg">
+    <h1 class="text-3xl font-bold">Smart Mall Indoor Guide</h1>
+    <p class="text-lg mt-1">Find stores & routes easily!</p>
+</header>
+
+<main class="max-w-6xl mx-auto p-6">
+
+    <!-- Search Store -->
+    <section class="bg-white rounded-xl shadow-lg p-6 mb-6 hover:shadow-2xl transition-all">
+        <h2 class="text-2xl font-semibold mb-4">Search Store</h2>
+        <div class="flex gap-4 flex-wrap">
+            <input id="storeName" type="text" placeholder="Enter store name"
+                class="flex-1 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-400">
+            <button onclick="searchStore()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-all">
+                Search
+            </button>
+        </div>
+        <div id="searchResult" class="mt-4 text-lg font-medium text-purple-800"></div>
+    </section>
+
+    <!-- Find Route -->
+    <section class="bg-white rounded-xl shadow-lg p-6 mb-6 hover:shadow-2xl transition-all">
+        <h2 class="text-2xl font-semibold mb-4">Find Route</h2>
+        <div class="flex gap-4 flex-wrap">
+            <input id="srcLoc" type="text" placeholder="From" class="flex-1 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-400">
+            <input id="dstLoc" type="text" placeholder="To" class="flex-1 p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-400">
+            <button onclick="findRoute()" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-all">
+                Find Route
+            </button>
+        </div>
+        <div id="routeResult" class="mt-4 text-lg font-medium text-indigo-800"></div>
+    </section>
+
+    <!-- Locations -->
+    <section class="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all">
+        <h2 class="text-2xl font-semibold mb-4">All Locations</h2>
+        <button onclick="listLocations()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all mb-4">
+            Show Locations
+        </button>
+        <div id="locations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+</main>
+
+<script>
+// Sample data (replace with backend API later)
+const locations = [
+    {id:1,name:"Main Entrance",type:"entrance",floor:0},
+    {id:2,name:"Central Lobby",type:"intersection",floor:0},
+    {id:3,name:"Escalator 1",type:"escalator",floor:0},
+    {id:4,name:"Escalator 1 - First Floor",type:"escalator",floor:1},
+    {id:5,name:"Food Court",type:"area",floor:1},
+    {id:6,name:"Zara Store",type:"store",floor:1},
+    {id:7,name:"Nike Store",type:"store",floor:2}
+];
+const stores = {"zara":6,"nike":7};
+
+// Dummy BFS path
+function getPath(srcName, dstName) { return [srcName, "Central Lobby", dstName]; }
+
+function searchStore() {
+    const name = document.getElementById('storeName').value.toLowerCase().trim();
+    const result = document.getElementById('searchResult');
+    if(stores[name]) {
+        const loc = locations.find(l => l.id === stores[name]);
+        result.innerHTML = `Found at: <span class="font-bold">${loc.name}</span> (Floor ${loc.floor})`;
+    } else {
+        result.innerHTML = 'Store not found.';
+    }
+}
+
+function findRoute() {
+    const src = document.getElementById('srcLoc').value.trim();
+    const dst = document.getElementById('dstLoc').value.trim();
+    const result = document.getElementById('routeResult');
+
+    const srcExists = locations.some(l=>l.name.toLowerCase()===src.toLowerCase());
+    const dstExists = locations.some(l=>l.name.toLowerCase()===dst.toLowerCase());
+
+    if(!srcExists || !dstExists) { result.innerHTML = 'Unknown location(s).'; return; }
+
+    const path = getPath(src, dst);
+    result.innerHTML = `Route: <span class="font-semibold">${path.join(" → ")}</span><br>Distance: <span class="font-semibold">50 meters</span>`;
+}
+
+function listLocations() {
+    const locDiv = document.getElementById('locations');
+    locDiv.innerHTML = locations.map(l=>`
+        <div class="bg-purple-100 p-4 rounded-lg shadow hover:shadow-lg transition-all">
+            <h3 class="font-bold text-lg">${l.name}</h3>
+            <p>Type: ${l.type}</p>
+            <p>Floor: ${l.floor}</p>
+        </div>
+    `).join('');
+}
+</script>
+
+</body>
+</html>
